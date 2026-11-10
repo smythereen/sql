@@ -1,0 +1,93 @@
+.TH SQL 1 "2026-11-09" "sql unit" "User Commands"
+.SH NAME
+sql, sql_<command> \- typed SQL over ordinary directory trees
+.SH SYNOPSIS
+.B sql
+.I command
+[\fB\-\-context\fR \fIhandle\fR] [\fB\-\-cwd\fR \fIdir\fR] [\fB\-\-lock\-timeout\fR \fIms\fR]
+[\fB\-\-bind\fR \fIname type value\fR]...
+.RI [ statement ]
+.br
+.B sql_\fIcommand\fR
+[options]
+.RI [ statement ]
+.SH DESCRIPTION
+A table is a directory holding a \fI.table\fR definition; records are directories at the schema's
+RECORD level and fields are the files inside them. The statement is a single shell argument.
+An omitted table operand means the working directory (or \fB\-\-cwd\fR).
+The complete reference, with EBNF for every clause, filesystem effects, errors and verified
+examples, is \fBMANUAL.md\fR in the sql unit directory (\fB~/sql/MANUAL.md\fR).
+.SH COMMANDS
+.TP
+.B create | define
+TABLE [path] (schema) [VALIDATE ONLY] [UNMATCHED ERROR|IGNORE] [LINKS REJECT|INTERNAL];
+VIEW [path] AS SELECT ... | LINKED AS SELECT ... | LINKED BRANCHES (name AS SELECT ... ; ...)
+.TP
+.B describe
+TABLE|VIEW [path] [AS DDL]
+.TP
+.B show
+TABLES IN p | VIEWS IN p | TRANSACTIONS ON root | CONTEXTS ON root | DEPENDENTS OF t | REFERENCES OF t
+.TP
+.B select
+proj[, ...] [FROM p] [WHERE e] [ORDER BY e [ASC|DESC]] [LIMIT n] [OFFSET n]
+[OUTPUT JSON|LINES|NUL|RAW] [REQUIRE MATCH]; BRANCH name proj ... in a branches root
+.TP
+.B insert
+[INTO p] RECORD 'path'|GENERATED [UNDER 'g'] [USING (n,...)] (f,...) VALUES (v,...);
+[INTO p] ADD TO f VALUES (v,...) WHERE e|ALL RECORDS; value: [NAMED 'n'] literal|FILE('path')
+.TP
+.B update
+[p] SET f = v[, ...] [WHERE e] [ALL RECORDS|ALL MEMBERS]
+.TP
+.B delete
+[FROM p] [MEMBERS f] WHERE e | ALL RECORDS | ALL MEMBERS
+.TP
+.B link | unlink
+[FROM p] FIELD f TO 'rec/member' FROM SOURCE t WHERE e|ALL RECORDS; [FROM p] FIELD f WHERE e|ALL RECORDS
+.TP
+.B alter
+TABLE [p] RENAME RECORD 'a' TO 'b' | ADD FIELD decl | DROP FIELD f [INCLUDING DATA] |
+RENAME FIELD|CAPTURE a TO b | ALTER FIELD f SET|DROP ... | SET UNMATCHED|LINKS ... | ADOPT IDS
+[VALIDATE ONLY]; VIEW [p] PRUNE GENERATIONS [KEEP n]
+.TP
+.B drop
+TABLE|VIEW [p] [INCLUDING DATA] [RESTRICT] [VALIDATE ONLY]  (CASCADE: status 7)
+.TP
+.B check
+TABLE [p] [ALL|SCHEMA|NAMES|COUNTS|TYPES|LINKS|JOURNALS] [DEEP] | VIEW [p]
+.TP
+.B begin | commit | rollback
+begin [READ ONLY|READ WRITE] [ON root] [CONTEXT h]; commit [CONTEXT h] [RETURNING TRANSACTION]
+.TP
+.B context
+CREATE [ON root] [OWNER pid] | SHOW [h] | SET [h] var = v | CLOSE [h] | CLEAN STALE ON root |
+INSPECT h | RESUME h [OWNER pid] | MIGRATE h
+.TP
+.B recover
+TABLE|DATABASE [p] ALL|TRANSACTION id [APPLY|REPORT ONLY]
+.TP
+.B trigger
+INIT [ON t] | CREATE name [ON t] AFTER kinds [OF (f,...)] [WHERE e] EXECUTE '/abs' ARGUMENTS (...)
+[TIMEOUT ms] [RETRIES n] [ENABLE|DISABLE] | SHOW [ON t] | ENABLE|DISABLE|DROP name [ON t]
+.TP
+.B watch
+[ON t] FOR ALL|name [ONCE|CONTINUOUS] [RESUME] [DURATION ms] | VIEW p [DURATION ms] [DEBOUNCE ms]
+.TP
+.B tblmem | viewmem | ctxmem | trgmem
+decode a map as a replayable script, or assign C.TraceLevel / C.DDL / C.Query / C.LockTimeout / ...
+.SH ENVIRONMENT
+.TP
+.B SQL_CONTEXT
+context handle (as \fB\-\-context\fR).
+.TP
+.B DATABASE_DIR
+root for \fBcontext CREATE\fR without ON (no other use).
+.SH EXIT STATUS
+0 ok, 2 syntax, 3 I/O or lock, 4 constraint, 5 REQUIRE MATCH empty,
+6 committed but pending (run recover; never retry blindly), 7 unsupported form.
+.SH FILES
+\fI.table\fR, \fI.view\fR, \fI.sql/\fR (events, shared, ids, deps, .triggers, fanout, fanin),
+\fI.context/<pid>/\fR, \fI.sql-root\fR, \fI.sql-journal.<id>/\fR, \fI.sql-id\fR, \fI.sql-null.<member>\fR.
+.SH SEE ALSO
+MANUAL.md, TRANSACTIONS.md, VIEWS.md, MULTI_VIEWS.md

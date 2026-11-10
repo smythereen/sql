@@ -1,0 +1,19 @@
+SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
+
+Copyright (c) 2026 John R. Smythe Jr.
+
+The source files of this unit that carry the SPDX line above are dual
+licensed. You may use, copy, modify and distribute them under EITHER of these
+licenses, at your option:
+
+  * the Apache License, Version 2.0         (LICENSES/Apache-2.0.txt)
+  * the GNU General Public License, version 2 or (at your option) any
+    later version                           (LICENSES/GPL-2.0.txt)
+
+In practice: use the Apache-2.0 terms to put this unit in any project,
+including closed-source ones. The GPL-2.0-or-later alternative exists so the
+unit can be built into the CAYE kernel (GPLv2) and other GPL code.
+
+Each source file names its license in an SPDX-License-Identifier line at the
+top. The full license texts are in the LICENSES directory in the root of the
+CAYE tree.

@@ -1,0 +1,12 @@
+# UNIT.deps for sql
+# Evidence: #include <trigger.h>, <mem_io.h>, <map.h>, <far.h>, <common.h>;
+# LIBRARIES = -ltrigger -lmio -lmap -lfar -lnow -lsem -lsys
+# atomic is not a direct include; fetch pulls it transitively via trigger and sys.
+base 1
+require trigger
+require mio
+require map
+require far
+require now
+require sem
+require sys
